@@ -1,5 +1,23 @@
 <center> <h1>HBNB - The Console</h1> </center>
 
+**/
+This is a fork of the AirBnB clone repository. The aim of forking is to create a personal copy of this project within my GitHub account, so that I can experiment, make modifications, and contribute without affecting the original source.
+
+How to Fork
+1.	Navigate to Repository: Visit the original repository's page on GitHub.
+2.	Click "Fork": Simply click on the "Fork" button in the top-right corner of the repository page. This action will create a copy of the repository under your GitHub account.
+3.	Start Contributing: Once you've forked the repository, you can start making changes, adding features, or fixing bugs in your forked copy.
+
+Keeping Your Fork Updated
+It's important to periodically sync your forked repository with any changes made to the original repository. This ensures that you're working with the latest codebase and can contribute effectively.
+
+How to Sync
+1.	Add Remote Upstream: Add the original repository as a remote upstream using Git.
+2.	Fetch and Merge Changes: Fetch the changes from the upstream repository and merge them into your local fork.
+3.	Push Changes: Push the updated changes to your forked repository on GitHub.
+**/
+
+
 This repository contains the initial stage of a student project to build a clone of the AirBnB website. This stage implements a backend interface, or console, to manage program data. Console commands allow the user to create, update, and destroy objects, as well as manage file storage. Using a system of JSON serialization/deserialization, storage is persistent between sessions.
 
 ---
