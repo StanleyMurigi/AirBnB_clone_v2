@@ -114,7 +114,10 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, args):
-        """ Create an object of any class"""
+        """ Create and save a new instance of Basemodel
+        Exceptions:
+            syntaxError: When no args are given
+            nameError: When there is no obj that has that name"""
         if not args:
             print("** class name missing **")
             return
@@ -129,7 +132,7 @@ class HBNBCommand(cmd.Cmd):
         param_dict = {}
         for item in args[1:]:
             try:
-                key_name, value = item.split('=')
+                key, value = item.split('=')
 
                 if value.startswith('"') and value('"'):
                     value = value[1:-1].replace('_', ' ').replace('\\"', '"')
@@ -137,9 +140,10 @@ class HBNBCommand(cmd.Cmd):
                     value = float
                 else:
                     value = int
-                    param_dict[key_name] = value
+                    param_dict[key] = value
             except ValueError:
                 pass
+
 
         new_instance = HBNBCommand.classes[class_name](**param_dict)
         new_instance.save()
