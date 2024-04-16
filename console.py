@@ -118,37 +118,39 @@ class HBNBCommand(cmd.Cmd):
         Exceptions:
             syntaxError: When no args are given
             nameError: When there is no obj that has that name"""
-        if not args:
-            print("** class name missing **")
-            return
-
-        args = arg.split()
-        class_name = args[0]
-
-        if class_name not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
-
-        param_dict = {}
-        for item in args[1:]:
             try:
-                key, value = item.split('=')
+                if not line:
+                    raise SyntaxError()
+                my_list = line.split(" ")
+                obj = eval("{}()".format(my_list[0]))
+                for pair in my_list[1:]:
+                    pair = pair.split('=', 1)
+                    if len(pair == 1 or "" in pair:
+                            continue
+                            match = re.search('^"(.*)"$', pair[1])
+                            cast = str
+                            if match:
+                            value = match.group(1)
+                            value = value.replace('_', ' ')
+                            value = re.sub(r'(?<!\\)"', r'\\"', value)
+                            else:
+                            value = pair[1]
+                            if"." in value:
+                            cast = float
+                            else:
+                            cast = int
 
-                if value.startswith('"') and value('"'):
-                    value = value[1:-1].replace('_', ' ').replace('\\"', '"')
-                elif '.' in value:
-                    value = float
-                else:
-                    value = int
-                    param_dict[key] = value
-            except ValueError:
-                pass
+                            try:
+                            value = cast(value)
+                            except ValueError:
+                            pass
 
-
-        new_instance = HBNBCommand.classes[class_name](**param_dict)
-        new_instance.save()
-        print(new_instance.id)
-        storage.save()
+                            obj.save()
+                            print("{}".format(obj.id))
+                            except SyntaxError:
+                            print("** class name missing **")
+                            except NameError:
+                            print("** class doesn't exist **")
 
     def help_create(self):
         """ Help information for the create method """
