@@ -118,11 +118,31 @@ class HBNBCommand(cmd.Cmd):
         if not args:
             print("** class name missing **")
             return
-        elif args not in HBNBCommand.classes:
+
+        args = arg.split()
+        class_name = args[0]
+
+        if class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[args]()
-        storage.save()
+
+        param_dict = {}
+        for item in args[1:]:
+            try:
+                key_name, value = item.split('=')
+
+                if value.startswith('"') and value('"'):
+                    value = value[1:-1].replace('_', ' ').replace('\\"', '"')
+                elif '.' in value:
+                    value = float
+                else:
+                    value = int
+                    param_dict[key_name] = value
+            except ValueError:
+                pass
+
+        new_instance = HBNBCommand.classes[class_name](**param_dict)
+        new_instance.save()
         print(new_instance.id)
         storage.save()
 
