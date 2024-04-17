@@ -2,28 +2,23 @@
 
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String
-from sqlalchemy.orm import relationship
-from models import storage
+from sqlalchemy.orm import relationship, backref
+from os import getenv
 
 class State(BaseModel, Base):
     """ State class """
     __tablename__ = 'states'
     name = Column(String(128), nullable=False)
-
-    def __init__(self, *args, **kwargs):
-        """ Initialize State """
-        super().__init__(*args, **kwargs)
-
-        if storage.__class__.__name__ == 'DBStorage':
-            self.setup_db_storage()
-        elif storage.__class__.__name__ == 'FileStorage':
-            self.setup_file_storage()
-
-    def setup_db_storage(self):
-        """Setup for DBStorage"""
-        self.cities = relationship("City", backref="state", cascade="all, delete-orphan")
-
-    def setup_file_storage(self):
-        """Setup for FileStorage"""
-        pass  # You can implement this if needed
-
+    cities = relationship(
+            "City",
+            cascade="all,delete-orphan",
+            backref=backref("state", cascade="all,delete"),
+            passive_deletes=True,
+            single_parent=True)
+    if getenv("HBNB_TYPE_STORAGE") != "db":
+        @property
+        def cities(self):
+            """ """
+            from models import City
+            return [v for k, v in storage.all(City).items()
+                    if v.state_id == self.id]

@@ -3,13 +3,16 @@
 import cmd
 import sys
 from models.base_model import BaseModel
-from models.__init__ import storage
 from models.user import User
 from models.place import Place
 from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
+from shlex import split
+from models import storage
+from datetime import datetime
+import re
 
 
 class HBNBCommand(cmd.Cmd):
@@ -73,8 +76,8 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] is '{' and pline[-1] is'}'\
-                            and type(eval(pline)) is dict:
+                    if pline[0] == '{' and pline[-1] == '}'\
+                            and type(eval(pline)) == dict:
                         _args = pline
                     else:
                         _args = pline.replace(',', '')
@@ -113,44 +116,46 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
-        """ Create and save a new instance of Basemodel
-        Exceptions:
-            syntaxError: When no args are given
-            nameError: When there is no obj that has that name"""
-            try:
-                if not line:
-                    raise SyntaxError()
-                my_list = line.split(" ")
-                obj = eval("{}()".format(my_list[0]))
-                for pair in my_list[1:]:
-                    pair = pair.split('=', 1)
-                    if len(pair == 1 or "" in pair:
-                            continue
-                            match = re.search('^"(.*)"$', pair[1])
-                            cast = str
-                            if match:
-                            value = match.group(1)
-                            value = value.replace('_', ' ')
-                            value = re.sub(r'(?<!\\)"', r'\\"', value)
-                            else:
-                            value = pair[1]
-                            if"." in value:
-                            cast = float
-                            else:
-                            cast = int
+    def do_create(self, line):
+        """ Creates a new instance of BaseModel, sets attributes, and saves the object """
+        try:
+            if not line:
+                raise ValueError("No arguments given")
 
-                            try:
-                            value = cast(value)
-                            except ValueError:
-                            pass
+            # Split input line into tokens
+            my_list = line.split(" ")
 
-                            obj.save()
-                            print("{}".format(obj.id))
-                            except SyntaxError:
-                            print("** class name missing **")
-                            except NameError:
-                            print("** class doesn't exist **")
+            # Extract class name and create instance dynamically
+            class_name = my_list[0]
+            obj_cls = globals().get(class_name)
+            if obj_cls == None:
+                raise NameError(f"No class named '{class_name}' exists")
+            obj = obj_cls()
+
+            # Iterate over attribute-value pairs and set attributes
+            for pair in my_list[1:]:
+                pair = pair.split('=', 1)
+                if len(pair) != 2:
+                    continue
+                attr_name, attr_value = pair
+
+                # Cast attribute value based on type inference
+                cast = int
+                if "." in attr_value:
+                    cast = float
+                attr_value = cast(attr_value)
+
+                # Set attribute on object
+                setattr(obj, attr_name, attr_value)
+
+            # Save object and print its ID
+            obj.save()
+            print("{}".format(obj.id))
+
+        except ValueError as ve:
+            print(f"ValueError: {ve}")
+        except NameError as ne:
+            print(f"NameError: {ne}")
 
     def help_create(self):
         """ Help information for the create method """
@@ -298,7 +303,7 @@ class HBNBCommand(cmd.Cmd):
                 args.append(v)
         else:  # isolate args
             args = args[2]
-            if args and args[0] is '\"':  # check for quoted arg
+            if args and args[0] == '\"':  # check for quoted arg
                 second_quote = args.find('\"', 1)
                 att_name = args[1:second_quote]
                 args = args[second_quote + 1:]
@@ -306,10 +311,10 @@ class HBNBCommand(cmd.Cmd):
             args = args.partition(' ')
 
             # if att_name was not quoted arg
-            if not att_name and args[0] is not ' ':
+            if not att_name and args[0] != ' ':
                 att_name = args[0]
             # check for quoted val arg
-            if args[2] and args[2][0] is '\"':
+            if args[2] and args[2][0] == '\"':
                 att_val = args[2][1:args[2].find('\"', 1)]
 
             # if att_val was not quoted arg
