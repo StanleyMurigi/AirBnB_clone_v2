@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """ Place Module for HBNB project """
-from models.base_model import BaseModel
+from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String, Float, Integer, ForeignKey, Table
 from os import getenv
 from sqlalchemy.orm import relationship, backref
@@ -47,7 +47,7 @@ class Place(BaseModel):
         amenities = relationship(
                 "Amenity",
                 secondary="place_amenity",
-                vieonly=False,
+                viewonly=False,
                 back_populates="place_amenities")
     else:
         @property
