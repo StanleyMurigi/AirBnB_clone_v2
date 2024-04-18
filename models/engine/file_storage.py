@@ -37,17 +37,25 @@ class FileStorage:
         for key, value in self.__objects.items():
             my_dict[key] = value.to_dict()
         with open(self.__file_path, 'w', encoding="UTF-8") as f:
-            json.dump(param_dict, f)
+            json.dump(my_dict, f)
 
     def reload(self):
         """Deserialize the file path to JSON"""
         try:
             with open(self.__file_path, 'r', encoding="UTF-8") as f:
-                for key, value in (json.load(f)).items():
-                    value = eval(value["__class__"])(**value)
-                    self.__objects[key] = value
+                data = json.load(f)
+                for key, value in data.items():
+                    class_name = value["__class__"]
+                    cls = getattr(models, class_name)
+                    obj = cls(**value)
+                    self.__objects[key] = obj
+
+                else:
+                    print(f"Error: Missing '__class__' attribute for object with key '{key}'")
         except FileNotFoundError:
-            pass
+            print("Error: JSON file not found")
+        except json.decoder.JSONDecodeError:
+            print("Error: Invalid JSON data in the file")
 
     def delete(self, obj=None):
         """Deletes obj from __objects if it's inside"""
