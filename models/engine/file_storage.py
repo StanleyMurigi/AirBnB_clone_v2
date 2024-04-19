@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 """This module defines a class to manage file storage for hbnb clone"""
 import json
+import models
 from models.base_model import BaseModel
-from models.user import User
 from models.place import Place
+from models.user import User
 from models.state import State
 from models.city import City
 from models.amenity import Amenity
@@ -36,6 +37,7 @@ class FileStorage:
         my_dict = {}
         for key, value in self.__objects.items():
             my_dict[key] = value.to_dict()
+            my_dict[key]["__class__"] = value.__class__.__name__
         with open(self.__file_path, 'w', encoding="UTF-8") as f:
             json.dump(my_dict, f)
 
