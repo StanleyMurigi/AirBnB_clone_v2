@@ -18,7 +18,7 @@ if getenv("HBNB_TYPE_STORAGE") == "db":
                 primary_key=True,
                 nullable=False))
 
-class Place(BaseModel):
+class Place(BaseModel, Base):
     """ A class of place with several attributes """
     __tablename__ = "places"
     city_id = Column(String(60),

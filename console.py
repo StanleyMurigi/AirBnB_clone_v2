@@ -13,7 +13,7 @@ from shlex import split
 from models import storage
 from datetime import datetime
 import re
-
+import uuid
 
 class HBNBCommand(cmd.Cmd):
     """ Contains the functionality for the HBNB console"""
@@ -115,42 +115,55 @@ class HBNBCommand(cmd.Cmd):
     def emptyline(self):
         """ Overrides the emptyline method of CMD """
         pass
-
     def do_create(self, line):
-        """ Creates a new instance of BaseModel, sets attributes, and saves the object """
+        """ Creates a new instance of a given class with specified parameters """
         try:
             if not line:
                 raise ValueError("No arguments given")
 
             # Split input line into tokens
-            my_list = line.split(" ")
+            tokens = line.split()
 
             # Extract class name and create instance dynamically
-            class_name = my_list[0]
+            class_name = tokens[0]
             obj_cls = globals().get(class_name)
-            if obj_cls == None:
+            if obj_cls is None:
                 raise NameError(f"No class named '{class_name}' exists")
             obj = obj_cls()
 
-            # Iterate over attribute-value pairs and set attributes
-            for pair in my_list[1:]:
-                pair = pair.split('=', 1)
-                if len(pair) != 2:
-                    continue
-                attr_name, attr_value = pair
+            # set attribute id
+            obj.id = str(uuid.uuid4()) # Generates a unique id
 
-                # Cast attribute value based on type inference
-                cast = int
-                if "." in attr_value:
-                    cast = float
-                attr_value = cast(attr_value)
+            # Iterate over attribute-value pairs and set attributes
+            for pair in tokens[1:]:
+                pair_tokens = pair.split('=', 1)
+                if len(pair_tokens) != 2:
+                    continue
+                attr_name, attr_value = pair_tokens
+
+                # Process attr_value based on type
+                if attr_value.startswith('"') and attr_value.endswith('"'):
+                    # String value
+                    attr_value = attr_value[1:-1].replace('\\"', '"').replace('_', ' ')
+                elif '.' in attr_value:
+                    # Float value
+                    try:
+                        attr_value = float(attr_value)
+                    except ValueError:
+                        continue
+                else:
+                    # Integer value
+                    try:
+                        attr_value = int(attr_value)
+                    except ValueError:
+                        continue
 
                 # Set attribute on object
                 setattr(obj, attr_name, attr_value)
 
             # Save object and print its ID
             obj.save()
-            print("{}".format(obj.id))
+            print(obj.id)
 
         except ValueError as ve:
             print(f"ValueError: {ve}")

@@ -8,7 +8,7 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
-
+import models
 
 class FileStorage:
     """This class manages storage of hbnb models in JSON format"""
@@ -45,13 +45,13 @@ class FileStorage:
             with open(self.__file_path, 'r', encoding="UTF-8") as f:
                 data = json.load(f)
                 for key, value in data.items():
-                    class_name = value["__class__"]
-                    cls = getattr(models, class_name)
-                    obj = cls(**value)
-                    self.__objects[key] = obj
-
-                else:
-                    print(f"Error: Missing '__class__' attribute for object with key '{key}'")
+                    if "__class__" in value: # checks if '__class__ attribute exists
+                        class_name = value["__class__"]
+                        cls = getattr(models, class_name)
+                        obj = cls(**value)
+                        self.__objects[key] = obj
+                    else:
+                        print(f"Error: Missing '__class__' attribute for object with key '{key}'")
         except FileNotFoundError:
             print("Error: JSON file not found")
         except json.decoder.JSONDecodeError:
