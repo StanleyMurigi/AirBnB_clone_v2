@@ -16,7 +16,9 @@ if getenv("HBNB_TYPE_STORAGE") == "db":
                 String(60),
                 ForeignKey("amenities.id"),
                 primary_key=True,
-                nullable=False))
+                nullable=False),
+            extend_existing=True
+            )
 
 class Place(BaseModel, Base):
     """ A class of place with several attributes """
@@ -45,7 +47,7 @@ class Place(BaseModel, Base):
                 passive_deletes=True)
 
         amenities = relationship(
-                "Amenity",
+                "PlaceAmenity",
                 secondary="place_amenity",
                 viewonly=False,
                 back_populates="place_amenities")
@@ -69,3 +71,4 @@ class Place(BaseModel, Base):
             """ Should append amenity id to amenity_ids """
             if type(obj) is Amenity and obj.id not in self.amenity_ids:
                 self.amenity_ids.append(obj.id)
+    place_amenities = relationship("PlaceAmenity", back_populates="place")
